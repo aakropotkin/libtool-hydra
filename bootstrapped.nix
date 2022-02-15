@@ -14,7 +14,6 @@ stdenv.mkDerivation {
   name = name + "-bootstrapped";
   inherit src;
 
-  dontPatch         = true;
   dontConfigure     = true;
   dontPatchShebangs = true;
 
@@ -32,8 +31,15 @@ stdenv.mkDerivation {
     texinfoInteractive
   ];
 
+  patchPhase = ''
+    echo ${toString src.revCount} > .serial
+    echo 2.4.6 > .prev-version
+    echo 2.4.6.63-${src.shortRev}-dirty > .version
+  '';
+
   buildPhase = ''
-    ./bootstrap
+    ./bootstrap --skip-git
+
     _old_prefix=$prefix
     prefix=$PWD
     _makeSymlinksRelative
