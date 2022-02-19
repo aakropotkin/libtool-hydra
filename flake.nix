@@ -58,20 +58,16 @@
           self.packages.x86_64-linux.libtool-bootstrapped;
 
         libtool.x86_64-linux = self.packages.x86_64-linux.libtool;
+
+        libtool-check.x86_64-linux =
+          self.packages.x86_64-linux.libtool.overrideAttrs ( prev: {
+            doCheck = true;
+          } );
       }; # End `hydraJobs'
 
       checks.x86_64-linux = {
         build = self.packages.x86_64-linux.libtool;
-
-        build-check =
-          self.packages.x86_64-linux.libtool.overrideAttrs ( prev: {
-            doCheck = true;
-          } );
-
-        #install-check =
-        #  self.packages.x86_64-linux.libtool.overrideAttrs ( prev: {
-        #    doInstallCheck = true;
-        #  } );
+        check = self.hydraJobs.libtool-check.x86_64-linux;
       }; # End `checks'
 
     }; # End `outputs'
