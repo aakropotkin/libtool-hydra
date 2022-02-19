@@ -33,7 +33,7 @@
         libtool =
           nixpkgs.legacyPackages.x86_64-linux.callPackage ./default.nix {
             inherit name;
-            src = libtool-bootstrapped;
+            src = self.packages.x86_64-linux.libtool-bootstrapped;
           };
 
       };
