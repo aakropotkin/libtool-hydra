@@ -12,6 +12,12 @@
     let
       pname = "libtool";
       name  = pname + "-" + libtool-master.shortRev;
+      prevVersion =
+        nixpkgs.legacyPackages.x86_64-linux.lib.removeSuffix "\n"
+          ( builtins.readFile "${libtool-master}/.prev-version" );
+      serial      = libtool-master.revCount;
+      prevSerial  = 4179;
+      revVersion  = serial - prevSerial;
     in {
 
       defaultApp.x86_64-linux = self.apps.x86_64-linux.libtool;
@@ -41,6 +47,34 @@
           nixpkgs.legacyPackages.x86_64-linux.callPackage ./bootstrapped.nix {
             inherit name;
             src = libtool-master;
+          };
+
+        libtool-source-tarball =
+          nixpkgs.legacyPackages.x86_64-linux.releaseTools.sourceTarball rec {
+            inherit pname;
+            version = prevVersion + ".${toString revVersion}";
+            versionSuffix = toString src.shortRev;
+            src = libtool-master;
+            copy = "true"; # Tells `bootstrap' to copy files, not symlink
+            preAutoconf = ''
+              echo "${toString src.revCount}" > .serial
+              echo "$version-$versionSuffix" > .version
+              echo "$version" > .tarball-version
+              substituteInPlace libtoolize.in               \
+                --subst-var-by auxscriptdir $src/build-aux
+            '';
+            preDist = ''
+              make libtoolize
+              patchShebangs --build libtoolize
+            '';
+            postDist = ''
+              cp README.md $out/
+              echo "doc readme $out/README.md" >> $out/nix-support/hydra-build-products
+            '';
+            bootstrapBuildInputs = with nixpkgs.legacyPackages.x86_64-linux; [
+              autoconf automake gitMinimal m4 perl help2man texinfoInteractive
+              hostname
+            ];
           };
         
         libtool =
