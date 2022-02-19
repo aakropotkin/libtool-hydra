@@ -91,6 +91,9 @@
         libtool-bootstrapped.x86_64-linux =
           self.packages.x86_64-linux.libtool-bootstrapped;
 
+        libtool-source-tarball.x86_64-linux =
+          self.packages.x86_64-linux.libtool-source-tarball;
+
         libtool.x86_64-linux = self.packages.x86_64-linux.libtool;
 
         libtool-check.x86_64-linux =
