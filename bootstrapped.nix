@@ -19,6 +19,13 @@ stdenv.mkDerivation {
 
   nativeBuildInputs = [
     gitMinimal
+    autoconf
+    automake
+    m4
+    perl
+    help2man
+    hostname
+    texinfoInteractive
   ];
   
   propagatedBuildInputs = [
@@ -35,19 +42,25 @@ stdenv.mkDerivation {
     echo ${toString src.revCount} > .serial
     echo 2.4.6 > .prev-version
     echo 2.4.6.63-${src.shortRev}-dirty > .version
+    ls
   '';
 
   buildPhase = ''
-    ./bootstrap --skip-git
+    ./bootstrap --skip-git -c
 
     _old_prefix=$prefix
     prefix=$PWD
     _makeSymlinksRelative
     _old_prefix=$_old_prefix
-  ''; 
+  '';
 
   installPhase = ''
     mkdir -p $out
     cp -r * $out/
+  '';
+
+  postFixup = ''
+    mv $out/share/* $out/
+    rmdir $out/share
   '';
 }

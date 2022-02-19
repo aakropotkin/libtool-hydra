@@ -16,13 +16,10 @@ stdenv.mkDerivation rec {
   outputs = ["out" "lib"];
 
   preBuild = ''
-    buildFlagsArray=( libtoolize libtool libltdl/libltdl.la )
+    buildFlagsArray+=( abs_aux_dir="$src/build-aux" )
+    make abs_aux_dir="$src/build-aux" libtoolize
+    patchShebangs --build libtoolize
   '';
-
-  installTargets = [
-    "install-scripts-local"
-    "install-exec-recursive"
-  ];
 
   nativeBuildInputs = [
     perl help2man texinfoInteractive m4 autoconf automake hostname
@@ -31,7 +28,7 @@ stdenv.mkDerivation rec {
 
   # Don't fixup "#! /bin/sh" in Libtool, otherwise it will use the
   # "fixed" path in generated files!
-  dontPatchShebangs = true;
+  #dontPatchShebangs = true;
 
   # XXX: The GNU ld wrapper does all sorts of nasty things wrt. RPATH, which
   # leads to the failure of a number of tests.

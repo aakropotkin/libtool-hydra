@@ -62,6 +62,14 @@
         libtool-check.x86_64-linux =
           self.packages.x86_64-linux.libtool.overrideAttrs ( prev: {
             doCheck = true;
+            checkPhase = ''
+              make check
+            '';
+            installPhase = ''
+              mkdir -p $out
+              cp tests/testsuite.log $out/
+              cp -r tests/testsuite.dir $out/
+            '';
           } );
       }; # End `hydraJobs'
 
