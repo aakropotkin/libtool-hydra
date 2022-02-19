@@ -32,5 +32,13 @@
           };
 
       };
+
+      hydraJobs = {
+        libtool-source-flake.x86_64-linux =
+          self.packages.x86_64-linux.libtool-source-flake;
+
+        libtool-bootstrapped.x86_64-linux =
+          self.packages.x86_64-linux.libtool-bootstrapped;
+      };
     };
 }
