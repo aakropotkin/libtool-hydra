@@ -14,8 +14,7 @@
       name  = pname + "-" + libtool-master.shortRev;
     in {
 
-      defaultPackage.x86_64-linux =
-        self.packages.x86_64-linux.libtool-bootstrapped;
+      defaultPackage.x86_64-linux = self.packages.x86_64-linux.libtool;
 
       packages.x86_64-linux = {
 
@@ -30,6 +29,12 @@
             inherit name;
             src = libtool-master;
           };
+        
+        libtool =
+          nixpkgs.legacyPackages.x86_64-linux.callPackage ./default.nix {
+            inherit name;
+            src = libtool-bootstrapped;
+          };
 
       };
 
@@ -39,6 +44,8 @@
 
         libtool-bootstrapped.x86_64-linux =
           self.packages.x86_64-linux.libtool-bootstrapped;
+
+        libtool.x86_64-linux = self.packages.x86_64-linux.libtool;
       };
     };
 }

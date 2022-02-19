@@ -1,7 +1,5 @@
 { lib
 , stdenv
-#, fetchGit
-, git
 , autoconf
 , automake
 , m4
@@ -9,39 +7,13 @@
 , help2man
 , hostname
 , texinfoInteractive
-, libtoolSrc
-#, gitmodulesSrc
+, src
+, name ? "libtool-master"
 }:
 
 stdenv.mkDerivation rec {
-  name = "libtool-main";
-  src = libtoolSrc;
-  outputs = [ "out" "lib" ];
-
-  patchPhase = ''
-    cat <<EOF >> bootstrap.conf
-require_dotgitmodules=:
-require_gnulib_cache=:
-require_gnulib_merge_changelog=:
-require_gnulib_url=:
-require_gnulib_submodule=:
-EOF
-    echo "2.4.5" > .prev-version
-    echo "2.4.6.63-dirty" > .version
-    echo "2.4.6.63" > .tarball-version
-    echo "4242" > .serial
-
-    cat <<EOF > doc/version.texi
-@set UPDATE $( date +'%d %B %Y'; )
-@set UPDATED-MONTH $( date +'%B %Y'; )
-@set EDITION 2.4.6.63-dirty
-@set VERSION 2.4.6.63-dirty
-EOF
-  '';
-
-  preConfigure = ''
-    ./bootstrap --skip-git
-  '';
+  inherit src name;
+  outputs = ["out" "lib"];
 
   preBuild = ''
     buildFlagsArray=( libtoolize libtool libltdl/libltdl.la )
@@ -53,8 +25,7 @@ EOF
   ];
 
   nativeBuildInputs = [
-    perl help2man texinfoInteractive m4 autoconf automake git
-    hostname
+    perl help2man texinfoInteractive m4 autoconf automake hostname
   ];
   propagatedBuildInputs = [m4];
 
