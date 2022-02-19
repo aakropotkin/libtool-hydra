@@ -14,10 +14,23 @@
       name  = pname + "-" + libtool-master.shortRev;
     in {
 
+      defaultApp.x86_64-linux = self.apps.x86_64-linux.libtool;
+
+      apps.x86_64-linux = {
+        libtool = {
+          type = "app";
+          program = "${self.packages.x86_64-linux.libtool}/bin/libtool";
+        };
+
+        libtoolize = {
+          type = "app";
+          program = "${self.packages.x86_64-linux.libtool}/bin/libtoolize";
+        };
+      }; # End `apps'
+
       defaultPackage.x86_64-linux = self.packages.x86_64-linux.libtool;
 
       packages.x86_64-linux = {
-
         libtool-source-flake =
           nixpkgs.legacyPackages.x86_64-linux.callPackage ./source.nix {
             name = name + "-flake-source";
@@ -35,8 +48,7 @@
             inherit name;
             src = self.packages.x86_64-linux.libtool-bootstrapped;
           };
-
-      };
+      }; # End `packages'
 
       hydraJobs = {
         libtool-source-flake.x86_64-linux =
@@ -46,6 +58,21 @@
           self.packages.x86_64-linux.libtool-bootstrapped;
 
         libtool.x86_64-linux = self.packages.x86_64-linux.libtool;
-      };
-    };
+      }; # End `hydraJobs'
+
+      checks.x86_64-linux = {
+        build = self.packages.x86_64-linux.libtool;
+
+        build-check =
+          self.packages.x86_64-linux.libtool.overrideAttrs ( prev: {
+            doCheck = true;
+          } );
+
+        #install-check =
+        #  self.packages.x86_64-linux.libtool.overrideAttrs ( prev: {
+        #    doInstallCheck = true;
+        #  } );
+      }; # End `checks'
+
+    }; # End `outputs'
 }
