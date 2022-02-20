@@ -112,12 +112,11 @@
             '';
 
             bootstrapBuildInputs = with nixpkgs.legacyPackages.x86_64-linux; [
-              autoconf automake gitMinimal m4 perl help2man texinfoInteractive
-              hostname
+              autoconf automake m4 gnused gawk coreutils
             ];
 
             buildInputs = with nixpkgs.legacyPackages.x86_64-linux; [
-              autoconf automake m4 perl help2man texinfoInteractive hostname
+              autoconf automake m4 help2man texinfoInteractive
             ];
           };
 
@@ -143,7 +142,8 @@
               cp ${lt-tarballs}/libtoolize ./libtoolize
             '';
             nativeBuildInputs = with nixpkgs.legacyPackages.x86_64-linux; [
-              autoconf automake m4 perl help2man texinfoInteractive hostname
+              autoconf automake m4 help2man texinfoInteractive gnused gawk
+              coreutils
             ];
             propagatedBuildInputs = with nixpkgs.legacyPackages.x86_64-linux; [
               m4
