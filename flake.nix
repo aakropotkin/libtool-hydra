@@ -64,10 +64,15 @@
             postDist = ''
               cp README.md $out/
               echo "doc readme $out/README.md" >> $out/nix-support/hydra-build-products
+              cp libtoolize $out/
+              echo "file libtoolize $out/libtoolize" >> $out/nix-support/hydra-build-products
             '';
             bootstrapBuildInputs = with nixpkgs.legacyPackages.x86_64-linux; [
               autoconf automake gitMinimal m4 perl help2man texinfoInteractive
               hostname
+            ];
+            buildInputs = with nixpkgs.legacyPackages.x86_64-linux; [
+              autoconf automake m4 perl help2man texinfoInteractive hostname
             ];
           };
 
@@ -83,9 +88,40 @@
             '';
         
         libtool =
-          nixpkgs.legacyPackages.x86_64-linux.callPackage ./default.nix {
+          let
+            lt-tarballs = self.packages.x86_64-linux.libtool-source-tarballs;
+          in nixpkgs.legacyPackages.x86_64-linux.releaseTools.nixBuild {
             inherit pname version;
-            src = self.packages.x86_64-linux.libtool-source-tarball;
+            src = lt-tarballs;
+            outputs = ["out" "lib"];
+            preConfigure = ''
+              cp ${lt-tarballs}/libtoolize ./libtoolize
+            '';
+            nativeBuildInputs = with nixpkgs.legacyPackages.x86_64-linux; [
+              autoconf automake m4 perl help2man texinfoInteractive hostname
+            ];
+            propagatedBuildInputs = with nixpkgs.legacyPackages.x86_64-linux; [
+              m4
+            ];
+            doCheck = false;
+            doInstallCheck = false;
+            enableParallelBuilding = true;
+            meta = with nixpkgs.legacyPackages.x86_64-linux.lib; {
+              description = "GNU Libtool, a generic library support script";
+              longDescription = ''
+                GNU libtool is a generic library support script.  Libtool hides
+                the complexity of using shared libraries behind a consistent,
+                portable interface.
+
+                To use libtool, add the new generic library building commands to
+                your Makefile, Makefile.in, or Makefile.am.  See the
+                documentation for details.
+              '';
+              homepage = "https://www.gnu.org/software/libtool/";
+              license = licenses.gpl2Plus;
+              maintainers = [];
+              platforms = platforms.unix;
+            };
           };
       }; # End `packages'
 
@@ -99,11 +135,15 @@
           self.packages.x86_64-linux.libtool.overrideAttrs ( prev: {
             pname = prev.pname + "-check";
             doCheck = true;
+            keepBuildDirectory = true;
+            succeedOnFailure = true;
             checkPhase = ''
               make check
             '';
-            installPhase = ''
-              mkdir -p $out
+            postInstall = ''
+              cp tests/testsuite.log $out/
+            '';
+            failureHook = ''
               cp tests/testsuite.log $out/
               cp -r tests/testsuite.dir $out/
             '';
