@@ -18,6 +18,7 @@
       serial      = libtool-master.revCount;
       prevSerial  = 4179;
       revVersion  = serial - prevSerial;
+      version     = prevVersion + ".${toString revVersion}";
     in {
 
       defaultApp.x86_64-linux = self.apps.x86_64-linux.libtool;
@@ -37,22 +38,9 @@
       defaultPackage.x86_64-linux = self.packages.x86_64-linux.libtool;
 
       packages.x86_64-linux = {
-        libtool-source-flake =
-          nixpkgs.legacyPackages.x86_64-linux.callPackage ./source.nix {
-            name = name + "-flake-source";
-            src = libtool-master;
-          };
-        
-        libtool-bootstrapped =
-          nixpkgs.legacyPackages.x86_64-linux.callPackage ./bootstrapped.nix {
-            inherit name;
-            src = libtool-master;
-          };
-
         libtool-source-tarball =
           nixpkgs.legacyPackages.x86_64-linux.releaseTools.sourceTarball rec {
-            inherit pname;
-            version = prevVersion + ".${toString revVersion}";
+            inherit pname version;
             versionSuffix = toString src.shortRev;
             src = libtool-master;
             copy = "true"; # Tells `bootstrap' to copy files, not symlink
@@ -79,18 +67,13 @@
         
         libtool =
           nixpkgs.legacyPackages.x86_64-linux.callPackage ./default.nix {
-            inherit name;
-            src = self.packages.x86_64-linux.libtool-bootstrapped;
+            inherit pname version;
+            src = "${self.packages.x86_64-linux.libtool-source-tarball}" +
+                  "/tarballs/${pname}-${version}.tar.gz";
           };
       }; # End `packages'
 
       hydraJobs = {
-        libtool-source-flake.x86_64-linux =
-          self.packages.x86_64-linux.libtool-source-flake;
-
-        libtool-bootstrapped.x86_64-linux =
-          self.packages.x86_64-linux.libtool-bootstrapped;
-
         libtool-source-tarball.x86_64-linux =
           self.packages.x86_64-linux.libtool-source-tarball;
 

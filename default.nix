@@ -8,18 +8,13 @@
 , hostname
 , texinfoInteractive
 , src
-, name ? "libtool-master"
+, pname   ? "libtool"
+, version ? "0"
 }:
 
 stdenv.mkDerivation rec {
-  inherit src name;
+  inherit src pname version;
   outputs = ["out" "lib"];
-
-  preBuild = ''
-    buildFlagsArray+=( abs_aux_dir="$src/build-aux" )
-    make abs_aux_dir="$src/build-aux" libtoolize
-    patchShebangs --build libtoolize
-  '';
 
   nativeBuildInputs = [
     perl help2man texinfoInteractive m4 autoconf automake hostname
