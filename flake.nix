@@ -55,7 +55,10 @@
               echo "$version-$versionSuffix" > .version
               echo "$version" > .tarball-version
               substituteInPlace libtoolize.in               \
-                --subst-var-by auxscriptdir $src/build-aux
+                --subst-var-by auxscriptdir $src/build-aux  \
+                --replace '/usr/bin/env sh' '/bin/sh'
+              substituteInPlace build-aux/ltmain.in    \
+                --replace '/usr/bin/env sh' '/bin/sh'
             '';
             preDist = ''
               make libtoolize
