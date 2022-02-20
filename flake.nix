@@ -50,6 +50,7 @@
             versionSuffix = toString src.shortRev;
             src = libtool-master;
             copy = "true"; # Tells `bootstrap' to copy files, not symlink
+            dontPatchTestsuite = true;
             preAutoconf = ''
               echo "${toString src.revCount}" > .serial
               echo "$version-$versionSuffix" > .version
@@ -68,13 +69,15 @@
               chmod a+x ./libtoolize
               patchShebangs --build libtoolize
 
-              make tests/testsuite
-              mv tests/testsuite tests/testsuite~
-              abs_top_srcdir='.'  \
-                build-aux/inline-source tests/testsuite~ > tests/testsuite
-              rm tests/testsuite~
-              chmod a+x ./tests/testsuite
-              patchShebangs --build tests/testsuite
+              if test -z "$dontPatchTestsuite"; then
+                make tests/testsuite
+                mv tests/testsuite tests/testsuite~
+                abs_top_srcdir='.'  \
+                  build-aux/inline-source tests/testsuite~ > tests/testsuite
+                rm tests/testsuite~
+                chmod a+x ./tests/testsuite
+                patchShebangs --build tests/testsuite
+              fi
             '';
             postDist = ''
               cp README.md $out/
@@ -153,7 +156,7 @@
             pname = prev.pname + "-check";
             doCheck = true;
             keepBuildDirectory = true;
-            succeedOnFailure = true;
+            #succeedOnFailure = true;
             checkPhase = ''
               make check TESTSUITEFLAGS='NIX_DONT_SET_RPATH_x86_64_unknown_linux_gnu=1'
             '';
