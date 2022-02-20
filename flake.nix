@@ -44,12 +44,6 @@
       defaultPackage.x86_64-linux = self.packages.x86_64-linux.libtool;
 
       packages.x86_64-linux = {
-
-        libtool-bootstrap-min = ./bootstrap.sh;
-        libtool-gnulib-cache  = ./gnulib-cache.m4;
-        libtool-gnulib-comp   = ./gnulib-comp.m4;
-        libtool-changelog     = ./ChangeLog;
-
         libtool-source-tarballs =
           nixpkgs.legacyPackages.x86_64-linux.releaseTools.sourceTarball rec {
             inherit pname version;
@@ -60,28 +54,31 @@
             
             VERSION = version;
 
-            preAutoconf = ''
-              echo "${toString src.revCount}" > .serial
-              echo "$version-$versionSuffix" > .version
-              echo "$version" > .tarball-version
-              substituteInPlace libtoolize.in               \
-                --subst-var-by auxscriptdir $src/build-aux  \
-                --replace '/usr/bin/env sh' '/bin/sh'
-              substituteInPlace build-aux/ltmain.in    \
-                --replace '/usr/bin/env sh' '/bin/sh'
-              rm bootstrap
+            preAutoconf =
+              let
+                libtool-bootstrap-min = ./bootstrap.sh;
+                libtool-gnulib-cache  = ./gnulib-cache.m4;
+                libtool-gnulib-comp   = ./gnulib-comp.m4;
+                libtool-changelog     = ./ChangeLog;
+              in ''
+                echo "${toString src.revCount}" > .serial
+                echo "$version-$versionSuffix" > .version
+                echo "$version" > .tarball-version
+                substituteInPlace libtoolize.in               \
+                  --subst-var-by auxscriptdir $src/build-aux  \
+                  --replace '/usr/bin/env sh' '/bin/sh'
+                substituteInPlace build-aux/ltmain.in    \
+                  --replace '/usr/bin/env sh' '/bin/sh'
+                rm bootstrap
 
-              cat ${self.packages.x86_64-linux.libtool-bootstrap-min}  \
-                  > bootstrap
-              chmod a+x bootstrap
-              patchShebangs --build bootstrap
+                cat ${libtool-bootstrap-min} > bootstrap
+                chmod a+x bootstrap
+                patchShebangs --build bootstrap
 
-              cat ${self.packages.x86_64-linux.libtool-gnulib-cache}  \
-                  > m4/gnulib-cache.m4
-              cat ${self.packages.x86_64-linux.libtool-gnulib-comp}  \
-                  > m4/gnulib-comp.m4
-              cat ${self.packages.x86_64-linux.libtool-changelog} > ChangeLog
-            '';
+                cat ${libtool-gnulib-cache} > m4/gnulib-cache.m4
+                cat ${libtool-gnulib-comp} > m4/gnulib-comp.m4
+                cat ${libtool-changelog} > ChangeLog
+              '';
 
             preDist = ''
               make libtoolize
@@ -193,11 +190,11 @@
                 INNER_TESTSUITEFLAGS="$TESTSUITEFLAGS"
             '';
             postInstall = ''
-              cp tests/testsuite.log $out/
+              test -f tests/testsuite.log && cp tests/testsuite.log $out/
             '';
             failureHook = ''
-              cp tests/testsuite.log $out/
-              cp -r tests/testsuite.dir $out/
+              test -f tests/testsuite.log && cp tests/testsuite.log $out/
+              test -d tests/testsuite.dir && cp -r tests/testsuite.dir $out/
             '';
           } );
       }; # End `hydraJobs'

@@ -1,6 +1,12 @@
 #! /bin/sh
 # ============================================================================ #
 #
+# A minimal drop-in replacement for the `libtool' `bootstrap' script, which
+# significantly simplifies the process.
+#
+# Notably the reliance on `git' has been completely eliminated, and
+# `gnulib-tool' itself is never actually invoked.
+#
 #
 # ---------------------------------------------------------------------------- #
 
@@ -38,6 +44,7 @@ GREP="${GREP:-grep}";
 BASENAME="${BASENAME:-basename}";
 PATCH="${PATCH:-patch}";
 HEAD="${HEAD:-head}";
+REALPATH="${REALPATH:-realpath}";
 
 V="${V:-1}";
 src="${src:-$PWD}";
@@ -45,72 +52,68 @@ src="${src:-$PWD}";
 
 # ---------------------------------------------------------------------------- #
 
-##AUTOMAKE_VERSION=$( $AUTOMAKE --version|$HEAD -n1; );
-##AUTOMAKE_VERSION=$( echo "$AUTOMAKE_VERSION"|$SED 's/^.* \([0-9\.]*\)$/\1/'; );
-
-
-# ---------------------------------------------------------------------------- #
-
-declare -a bootstrap_outputs;
-bootstrap_outputs=(
-  .serial
-  .version
-  COPYING
-  ChangeLog
-  GNUmakefile
-  INSTALL
-  Makefile.in
-  README
-  README-release
-  aclocal.m4
-  autom4te.cache/
-  build-aux/announce-gen
-  build-aux/bootstrap.in
-  build-aux/compile
-  build-aux/config.guess
-  build-aux/config.sub
-  build-aux/depcomp
-  build-aux/do-release-commit-and-tag
-  build-aux/extract-trace
-  build-aux/funclib.sh
-  build-aux/gendocs.sh
-  build-aux/git-version-gen
-  build-aux/gitlog-to-changelog
-  build-aux/gnu-web-doc-update
-  build-aux/gnupload
-  build-aux/inline-source
-  build-aux/install-sh
-  build-aux/ltmain.sh
-  build-aux/mdate-sh
-  build-aux/missing
-  build-aux/options-parser
-  build-aux/test-driver
-  build-aux/texinfo.tex
-  build-aux/update-copyright
-  build-aux/useless-if-before-free
-  build-aux/vc-list-files
-  config-h.in
-  configure
-  doc/fdl.texi
-  doc/gendocs_template
-  doc/gendocs_template_min
-  gnulib-tests/
-  libltdl/COPYING.LIB
-  libltdl/Makefile.am
-  libltdl/Makefile.in
-  libltdl/aclocal.m4
-  libltdl/autom4te.cache/
-  libltdl/config-h.in
-  libltdl/configure
-  m4/00gnulib.m4
-  m4/gnulib-cache.m4
-  m4/gnulib-common.m4
-  m4/gnulib-comp.m4
-  m4/gnulib-tool.m4
-  m4/ltversion.m4
-  m4/zzgnulib.m4
-  maint.mk
-);
+## For Reference
+##
+# declare -a bootstrap_outputs;
+# bootstrap_outputs=(
+#   .serial
+#   .version
+#   COPYING
+#   ChangeLog
+#   GNUmakefile
+#   INSTALL
+#   Makefile.in
+#   README
+#   README-release
+#   aclocal.m4
+#   autom4te.cache/
+#   build-aux/announce-gen
+#   build-aux/bootstrap.in
+#   build-aux/compile
+#   build-aux/config.guess
+#   build-aux/config.sub
+#   build-aux/depcomp
+#   build-aux/do-release-commit-and-tag
+#   build-aux/extract-trace
+#   build-aux/funclib.sh
+#   build-aux/gendocs.sh
+#   build-aux/git-version-gen
+#   build-aux/gitlog-to-changelog
+#   build-aux/gnu-web-doc-update
+#   build-aux/gnupload
+#   build-aux/inline-source
+#   build-aux/install-sh
+#   build-aux/ltmain.sh
+#   build-aux/mdate-sh
+#   build-aux/missing
+#   build-aux/options-parser
+#   build-aux/test-driver
+#   build-aux/texinfo.tex
+#   build-aux/update-copyright
+#   build-aux/useless-if-before-free
+#   build-aux/vc-list-files
+#   config-h.in
+#   configure
+#   doc/fdl.texi
+#   doc/gendocs_template
+#   doc/gendocs_template_min
+#   gnulib-tests/
+#   libltdl/COPYING.LIB
+#   libltdl/Makefile.am
+#   libltdl/Makefile.in
+#   libltdl/aclocal.m4
+#   libltdl/autom4te.cache/
+#   libltdl/config-h.in
+#   libltdl/configure
+#   m4/00gnulib.m4
+#   m4/gnulib-cache.m4
+#   m4/gnulib-common.m4
+#   m4/gnulib-comp.m4
+#   m4/gnulib-tool.m4
+#   m4/ltversion.m4
+#   m4/zzgnulib.m4
+#   maint.mk
+# );
 
 
 # ---------------------------------------------------------------------------- #
@@ -127,6 +130,10 @@ rm -f HACKING;
 # Obsolete files
 rm -f acinclude.m4 argz.c libltdl/config.h lt__dirent.c lt__strl.c;
 
+# Run without `gnulib-tool' like a boss.
+if $REALPATH -s --relative-to . $GNULIB_TOOL|$GREP -qv '^\.\.'; then
+  rm -f $GNULIB_TOOL;
+fi
 
 
 # ---------------------------------------------------------------------------- #
@@ -152,13 +159,6 @@ gnulib_diffs=(
   build-aux/announce-gen.diff
   build-aux/do-release-commit-and-tag.diff
   top/README-release.diff
-);
-
-# Held in `GNULIB'
-declare -a gnulib_automake_diffs;
-gnulib_automake_diffs=(
-  build-aux/test-driver.diff
-  build-aux/test-driver-1.16.3.diff
 );
 
 
@@ -292,19 +292,6 @@ test 0 -eq "$status" || exit $status;
 
 LIBTOOLIZE=true $AUTORECONF --install;
 LIBTOOLIZE=true $AUTORECONF --install libltdl;
-
-
-# ---------------------------------------------------------------------------- #
-
-##if test "$AUTOMAKE_VERSION" = "1.16.3"; then
-##  gnulib_automake_diff="${gnulib_automake_diff[2]}";
-##else
-##  gnulib_automake_diff="${gnulib_automake_diff[1]}";
-##fi
-##mv build-aux/test-driver build-aux/test-driver~;
-##$PATCH -i $GNULIB/$gnulib_automake_diff -o build-aux/test-driver  \
-##       build-aux/test-driver~;
-##rm build-aux/test-driver~;
 
 
 # ---------------------------------------------------------------------------- #
