@@ -168,9 +168,9 @@
             TESTSUITEFLAGS =
               "NIX_DONT_SET_RPATH_x86_64_unknown_linux_gnu=1 -x -d";
             checkPhase = ''
-              make check-local                            \
-                TESTSUITEFLAGS='${TESTSUITEFLAGS}'        \
-                INNER_TESTSUITEFLAGS='${TESTSUITEFLAGS}'
+              make check-local                          \
+                TESTSUITEFLAGS="$TESTSUITEFLAGS"        \
+                INNER_TESTSUITEFLAGS="$TESTSUITEFLAGS"
             '';
             postInstall = ''
               cp tests/testsuite.log $out/
