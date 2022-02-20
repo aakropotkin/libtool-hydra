@@ -155,7 +155,7 @@
             keepBuildDirectory = true;
             succeedOnFailure = true;
             checkPhase = ''
-              make check
+              make check TESTSUITEFLAGS='NIX_DONT_SET_RPATH_x86_64_unknown_linux_gnu=1'
             '';
             postInstall = ''
               cp tests/testsuite.log $out/
