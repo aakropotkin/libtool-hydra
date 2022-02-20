@@ -82,7 +82,7 @@
               cp libtoolize $out/
               echo "file libtoolize $out/libtoolize" >> $out/nix-support/hydra-build-products
               cp tests/testsuite $out/
-              echo "file testsuite $out/libtoolize" >> $out/nix-support/hydra-build-products
+              echo "file testsuite $out/testsuite" >> $out/nix-support/hydra-build-products
             '';
             bootstrapBuildInputs = with nixpkgs.legacyPackages.x86_64-linux; [
               autoconf automake gitMinimal m4 perl help2man texinfoInteractive
