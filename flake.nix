@@ -33,12 +33,18 @@
           type = "app";
           program = "${self.packages.x86_64-linux.libtool}/bin/libtoolize";
         };
+
+        testsuite = {
+          type = "app";
+          program = "${self.packages.x86_64-linux.libtool-source-tarball}" +
+                    "/tests/testsuite";
+        };
       }; # End `apps'
 
       defaultPackage.x86_64-linux = self.packages.x86_64-linux.libtool;
 
       packages.x86_64-linux = {
-        libtool-source-tarball =
+        libtool-source-tarballs =
           nixpkgs.legacyPackages.x86_64-linux.releaseTools.sourceTarball rec {
             inherit pname version;
             versionSuffix = toString src.shortRev;
@@ -64,18 +70,28 @@
               hostname
             ];
           };
+
+        libtool-source-tarball =
+          nixpkgs.legacyPackages.x86_64-linux.runCommandNoCC
+            "libtool-source-tarball" {
+              tarballs = self.packages.x86_64-linux.libtool-source-tarballs;
+              inherit version;
+            } ''
+              mkdir -p $out
+              tar xf $tarballs/tarballs/${pname}-${version}.tar.gz  \
+                  -C $out --strip-components=1
+            '';
         
         libtool =
           nixpkgs.legacyPackages.x86_64-linux.callPackage ./default.nix {
             inherit pname version;
-            src = "${self.packages.x86_64-linux.libtool-source-tarball}" +
-                  "/tarballs/${pname}-${version}.tar.gz";
+            src = self.packages.x86_64-linux.libtool-source-tarball;
           };
       }; # End `packages'
 
       hydraJobs = {
-        libtool-source-tarball.x86_64-linux =
-          self.packages.x86_64-linux.libtool-source-tarball;
+        libtool-source-tarballs.x86_64-linux =
+          self.packages.x86_64-linux.libtool-source-tarballs;
 
         libtool.x86_64-linux = self.packages.x86_64-linux.libtool;
 
