@@ -44,6 +44,12 @@
       defaultPackage.x86_64-linux = self.packages.x86_64-linux.libtool;
 
       packages.x86_64-linux = {
+
+        libtool-bootstrap-min = ./bootstrap.sh;
+        libtool-gnulib-cache  = ./gnulib-cache.m4;
+        libtool-gnulib-comp   = ./gnulib-comp.m4;
+        libtool-changelog     = ./ChangeLog;
+
         libtool-source-tarballs =
           nixpkgs.legacyPackages.x86_64-linux.releaseTools.sourceTarball rec {
             inherit pname version;
@@ -51,6 +57,8 @@
             src = libtool-master;
             copy = "true"; # Tells `bootstrap' to copy files, not symlink
             dontPatchTestsuite = true;
+            
+            VERSION = version;
 
             preAutoconf = ''
               echo "${toString src.revCount}" > .serial
@@ -61,6 +69,18 @@
                 --replace '/usr/bin/env sh' '/bin/sh'
               substituteInPlace build-aux/ltmain.in    \
                 --replace '/usr/bin/env sh' '/bin/sh'
+              rm bootstrap
+
+              cat ${self.packages.x86_64-linux.libtool-bootstrap-min}  \
+                  > bootstrap
+              chmod a+x bootstrap
+              patchShebangs --build bootstrap
+
+              cat ${self.packages.x86_64-linux.libtool-gnulib-cache}  \
+                  > m4/gnulib-cache.m4
+              cat ${self.packages.x86_64-linux.libtool-gnulib-comp}  \
+                  > m4/gnulib-comp.m4
+              cat ${self.packages.x86_64-linux.libtool-changelog} > ChangeLog
             '';
 
             preDist = ''
