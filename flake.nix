@@ -165,9 +165,12 @@
             doCheck = true;
             keepBuildDirectory = true;
             #succeedOnFailure = true;
+            TESTSUITEFLAGS =
+              "NIX_DONT_SET_RPATH_x86_64_unknown_linux_gnu=1 -x -d";
             checkPhase = ''
-              make check TESTSUITEFLAGS='NIX_DONT_SET_RPATH_x86_64_unknown_linux_gnu=1' \
-                   INNER_TESTSUITEFLAGS='NIX_DONT_SET_RPATH_x86_64_unknown_linux_gnu=1'
+              make check-local                            \
+                TESTSUITEFLAGS='${TESTSUITEFLAGS}'        \
+                INNER_TESTSUITEFLAGS='${TESTSUITEFLAGS}'
             '';
             postInstall = ''
               cp tests/testsuite.log $out/
