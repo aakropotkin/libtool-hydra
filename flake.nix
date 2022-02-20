@@ -84,8 +84,10 @@
               echo "doc readme $out/README.md" >> $out/nix-support/hydra-build-products
               cp libtoolize $out/
               echo "file libtoolize $out/libtoolize" >> $out/nix-support/hydra-build-products
-              cp tests/testsuite $out/
-              echo "file testsuite $out/testsuite" >> $out/nix-support/hydra-build-products
+              if test -z "$dontPatchTestsuite"; then
+                cp tests/testsuite $out/
+                echo "file testsuite $out/testsuite" >> $out/nix-support/hydra-build-products
+              fi
             '';
             bootstrapBuildInputs = with nixpkgs.legacyPackages.x86_64-linux; [
               autoconf automake gitMinimal m4 perl help2man texinfoInteractive
