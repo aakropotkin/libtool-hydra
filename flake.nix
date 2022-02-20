@@ -62,6 +62,9 @@
             '';
             preDist = ''
               make libtoolize
+              mv libtoolize libtoolize~
+              build-aux/inline-source libtoolize~ > libtoolize
+              chmod a+x ./libtoolize
               patchShebangs --build libtoolize
             '';
             postDist = ''
