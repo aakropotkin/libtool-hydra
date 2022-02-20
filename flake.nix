@@ -51,6 +51,7 @@
             src = libtool-master;
             copy = "true"; # Tells `bootstrap' to copy files, not symlink
             dontPatchTestsuite = true;
+
             preAutoconf = ''
               echo "${toString src.revCount}" > .serial
               echo "$version-$versionSuffix" > .version
@@ -61,6 +62,7 @@
               substituteInPlace build-aux/ltmain.in    \
                 --replace '/usr/bin/env sh' '/bin/sh'
             '';
+
             preDist = ''
               make libtoolize
               mv libtoolize libtoolize~
@@ -79,20 +81,24 @@
                 patchShebangs --build tests/testsuite
               fi
             '';
+
             postDist = ''
               cp README.md $out/
               echo "doc readme $out/README.md" >> $out/nix-support/hydra-build-products
               cp libtoolize $out/
               echo "file libtoolize $out/libtoolize" >> $out/nix-support/hydra-build-products
+
               if test -z "$dontPatchTestsuite"; then
                 cp tests/testsuite $out/
                 echo "file testsuite $out/testsuite" >> $out/nix-support/hydra-build-products
               fi
             '';
+
             bootstrapBuildInputs = with nixpkgs.legacyPackages.x86_64-linux; [
               autoconf automake gitMinimal m4 perl help2man texinfoInteractive
               hostname
             ];
+
             buildInputs = with nixpkgs.legacyPackages.x86_64-linux; [
               autoconf automake m4 perl help2man texinfoInteractive hostname
             ];
@@ -160,7 +166,8 @@
             keepBuildDirectory = true;
             #succeedOnFailure = true;
             checkPhase = ''
-              make check TESTSUITEFLAGS='NIX_DONT_SET_RPATH_x86_64_unknown_linux_gnu=1'
+              make check TESTSUITEFLAGS='NIX_DONT_SET_RPATH_x86_64_unknown_linux_gnu=1' \
+                   INNER_TESTSUITEFLAGS='NIX_DONT_SET_RPATH_x86_64_unknown_linux_gnu=1'
             '';
             postInstall = ''
               cp tests/testsuite.log $out/
