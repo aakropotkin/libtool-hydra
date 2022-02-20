@@ -81,6 +81,7 @@
 
         libtool-check.x86_64-linux =
           self.packages.x86_64-linux.libtool.overrideAttrs ( prev: {
+            pname = prev.pname + "-check";
             doCheck = true;
             checkPhase = ''
               make check
