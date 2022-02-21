@@ -1,21 +1,28 @@
 {
   description = "GNU Libtool";
   
-  inputs.libtool-master = {
+  inputs.libtool = {
     url        = "git://git.savannah.gnu.org/libtool.git";
     type       = "git";
     flake      = false;
     submodules = true;
   };
 
-  outputs = { self, nixpkgs, libtool-master }:
+  inputs.gnulib = {
+    url        = "https://git.savannah.gnu.org/r/gnulib.git";
+    type       = "git";
+    flake      = false;
+    rev        = "a5218207e5f92e152a34994cce4aa415b1eb25c8";
+  };
+
+  outputs = { self, nixpkgs, gnulib, libtool }:
     let
       pname = "libtool";
-      name  = pname + "-" + libtool-master.shortRev;
+      name  = pname + "-" + libtool.shortRev;
       prevVersion =
         nixpkgs.legacyPackages.x86_64-linux.lib.removeSuffix "\n"
-          ( builtins.readFile "${libtool-master}/.prev-version" );
-      serial      = libtool-master.revCount;
+          ( builtins.readFile "${libtool}/.prev-version" );
+      serial      = libtool.revCount;
       prevSerial  = 4179;
       revVersion  = serial - prevSerial;
       version     = prevVersion + ".${toString revVersion}";
@@ -44,11 +51,17 @@
       defaultPackage.x86_64-linux = self.packages.x86_64-linux.libtool;
 
       packages.x86_64-linux = {
+
+        gnulib = nixpkgs.legacyPackages.x86_64-linux.callPackage ./gnulib.nix {
+          src = gnulib;
+          version = toString gnulib.revCount;
+        };
+
         libtool-source-tarballs =
           nixpkgs.legacyPackages.x86_64-linux.releaseTools.sourceTarball rec {
             inherit pname version;
             versionSuffix = toString src.shortRev;
-            src = libtool-master;
+            src = libtool;
             copy = "true"; # Tells `bootstrap' to copy files, not symlink
             dontPatchTestsuite = true;
             

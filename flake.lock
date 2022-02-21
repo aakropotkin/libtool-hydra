@@ -1,6 +1,23 @@
 {
   "nodes": {
-    "libtool-master": {
+    "gnulib": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1644201512,
+        "narHash": "sha256-e2n/D4PaV7LGQwu+UDDjIejmhTy4RrTHpxCwe7lw+vc=",
+        "ref": "master",
+        "rev": "a5218207e5f92e152a34994cce4aa415b1eb25c8",
+        "revCount": 22471,
+        "type": "git",
+        "url": "https://git.savannah.gnu.org/r/gnulib.git"
+      },
+      "original": {
+        "rev": "a5218207e5f92e152a34994cce4aa415b1eb25c8",
+        "type": "git",
+        "url": "https://git.savannah.gnu.org/r/gnulib.git"
+      }
+    },
+    "libtool": {
       "flake": false,
       "locked": {
         "lastModified": 1644381375,
@@ -34,7 +51,8 @@
     },
     "root": {
       "inputs": {
-        "libtool-master": "libtool-master",
+        "gnulib": "gnulib",
+        "libtool": "libtool",
         "nixpkgs": "nixpkgs"
       }
     }
