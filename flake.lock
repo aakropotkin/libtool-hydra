@@ -19,11 +19,11 @@
     "libtool": {
       "flake": false,
       "locked": {
-        "lastModified": 1652064390,
-        "narHash": "sha256-vp23FQZ88Nahrtb23J5sei2zp6LbgOufnY8rTPu7jUs=",
+        "lastModified": 1652677637,
+        "narHash": "sha256-kS2Dh9cEGjuGmpMLX4EKReT97//JgDVyNbTTktvm9ek=",
         "ref": "master",
-        "rev": "1d2577357ee704da2d6d7c7da119ad82ba8ca172",
-        "revCount": 4247,
+        "rev": "6132006b5fb6b95f31c30a972fbb829f93e1878b",
+        "revCount": 4248,
         "submodules": true,
         "type": "git",
         "url": "git://git.savannah.gnu.org/libtool.git"
@@ -36,11 +36,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1652467128,
-        "narHash": "sha256-1wuQ7QgPQ3tugYcoVMJ3pUzl4wVdBzKZr9qtJAgA4VI=",
+        "lastModified": 1652572281,
+        "narHash": "sha256-UEsrB5XBOj0blVe2ldc0lHvlhLYZJDHroELMHlg7XxA=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "fb222e008681fce4608e94f2d1dfdf3d03a364c4",
+        "rev": "43ff6cb1c027d13dc938b88eb099462210fea52f",
         "type": "github"
       },
       "original": {

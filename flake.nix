@@ -15,16 +15,24 @@
     rev        = "a5218207e5f92e152a34994cce4aa415b1eb25c8";
   };
 
+  #inputs.libtool-local = {
+  #  url   = "path:/data/repos/libtool-hydra/libtool";
+  #  flake = false;
+  #};
+
+  #outputs = { self, nixpkgs, gnulib, libtool, libtool-local }:
   outputs = { self, nixpkgs, gnulib, libtool }:
     let
-      lt-source = ./libtool;
+      #lt-source = libtool-local;
+      lt-source = libtool;
       pname = "libtool";
       name  = pname + "-" + lt-source.shortRev;
       prevVersion =
         nixpkgs.legacyPackages.x86_64-linux.lib.removeSuffix "\n"
           ( builtins.readFile "${lt-source}/.prev-version" );
-      serial      = lt-source.revCount;
-      prevSerial  = 4179;
+
+      serial = if lt-source ? revCount then lt-source.revCount else 9999;
+      prevSerial  = 4246;
       revVersion  = serial - prevSerial;
       version     = prevVersion + ".${toString revVersion}";
 
@@ -62,7 +70,8 @@
         libtool-source-tarballs =
           nixpkgs.legacyPackages.x86_64-linux.releaseTools.sourceTarball rec {
             inherit pname version;
-            versionSuffix = toString src.shortRev;
+            versionSuffix = if src ? shortRev then toString src.shortRev
+                                              else "local";
             src = lt-source;
             copy = "true"; # Tells `bootstrap' to copy files, not symlink
             dontPatchTestsuite = true;
@@ -76,7 +85,7 @@
                 libtool-gnulib-comp   = ./gnulib-comp.m4;
                 libtool-changelog     = ./ChangeLog;
               in ''
-                echo "${toString src.revCount}" > .serial
+                echo "${toString serial}" > .serial
                 echo "$version-$versionSuffix" > .version
                 echo "$version" > .tarball-version
                 substituteInPlace libtoolize.in               \
