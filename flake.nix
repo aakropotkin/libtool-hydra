@@ -17,15 +17,17 @@
 
   outputs = { self, nixpkgs, gnulib, libtool }:
     let
+      lt-source = ./libtool;
       pname = "libtool";
-      name  = pname + "-" + libtool.shortRev;
+      name  = pname + "-" + lt-source.shortRev;
       prevVersion =
         nixpkgs.legacyPackages.x86_64-linux.lib.removeSuffix "\n"
-          ( builtins.readFile "${libtool}/.prev-version" );
-      serial      = libtool.revCount;
+          ( builtins.readFile "${lt-source}/.prev-version" );
+      serial      = lt-source.revCount;
       prevSerial  = 4179;
       revVersion  = serial - prevSerial;
       version     = prevVersion + ".${toString revVersion}";
+
     in {
 
       defaultApp.x86_64-linux = self.apps.x86_64-linux.libtool;
@@ -61,7 +63,7 @@
           nixpkgs.legacyPackages.x86_64-linux.releaseTools.sourceTarball rec {
             inherit pname version;
             versionSuffix = toString src.shortRev;
-            src = libtool;
+            src = lt-source;
             copy = "true"; # Tells `bootstrap' to copy files, not symlink
             dontPatchTestsuite = true;
             

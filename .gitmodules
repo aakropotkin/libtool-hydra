@@ -1,0 +1,3 @@
+[submodule "libtool"]
+	path = libtool
+	url = git@github.com:aakropotkin/libtool.git
